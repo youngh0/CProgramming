@@ -15,7 +15,7 @@ int main()
       cin>>data;
       sum+=data;
     }
-    cout >> sum >> endl;
+    cout << sum << endl;
   }
 
   return 0;
