@@ -16,7 +16,7 @@ int main() {
             result %= 10;
         }
         cout << long(result % 10);
-
+        cout << endl;
     }
 
 }
