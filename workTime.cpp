@@ -19,8 +19,8 @@ int main() {
 			cin >> startHour >> startMinute >> startSecond
 				>> finishHour >> finishMinute >> finishSecond;
 
-			if (finishSecond - startSecond < 0) {
-				workSecond += 60 + (finishSecond - startSecond);
+			if (finishSecond - startSecond < 0) {				//workSecond가 음수가 나올 경우
+				workSecond += 60 + (finishSecond - startSecond);	//workMinute에 1일 빼주고 second에 60을 더해줌
 				workMinute--;
 			}
 			else {
@@ -35,8 +35,8 @@ int main() {
 			}
 			workHour += finishHour - startHour;
 		}
-		if (workSecond >= 60) {
-			workMinute += workSecond / 60;
+		if (workSecond >= 60) {					//최종 workSecond가 60이 넘을 경우
+			workMinute += workSecond / 60;			//minute에는 60으로 나눈 몫을 second에는 나머지를 넣어줌
 			workSecond = workSecond % 60;
 		}
 		if (workMinute >= 60) {
