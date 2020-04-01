@@ -14,15 +14,15 @@ int main() {
 		cin >> client;
 
 		for (int j = 0; j < client; j++) {
-			int startHour, startMinute, startSecond,
+			int startHour, startMinute, startSecond,			
 				finishHour, finishMinute, finishSecond;
 			cin >> startHour >> startMinute >> startSecond
 				>> finishHour >> finishMinute >> finishSecond;
 
-			if (finishSecond - startSecond < 0) {
-				workSecond += 60 + (finishSecond - startSecond);
-				workMinute--;
-			}
+			if (finishSecond - startSecond < 0) {				//workSecond가 음수가 나올 경우
+				workSecond += 60 + (finishSecond - startSecond);	//workMinute에 1일 빼주고 second에 60을 더해줌
+				workMinute--;						//이 과정에선 second가 120을 넘지 않기에 minute에
+			}								//--만 해주면 됨.					
 			else {
 				workSecond += finishSecond - startSecond;
 			}
@@ -35,8 +35,8 @@ int main() {
 			}
 			workHour += finishHour - startHour;
 		}
-		if (workSecond >= 60) {
-			workMinute += workSecond / 60;
+		if (workSecond >= 60) {					//최종 workSecond가 60이 넘을 경우
+			workMinute += workSecond / 60;			//minute에는 60으로 나눈 몫을 second에는 나머지를 넣어줌
 			workSecond = workSecond % 60;
 		}
 		if (workMinute >= 60) {
