@@ -9,47 +9,7 @@
 #include<cmath>
 using namespace std;
 
-int checkPariti(int par,int arr[]);
-
-int dataToHaming(long long data,int arr[]){
-    int check = 0;
-    int idx = 0;
-    while(data != 0){
-        check++;
-        if(idx == 0 ||idx == 1 ||idx == 3 ||idx == 7 ||idx == 15){
-            idx++;continue;
-        }
-        else{
-            if(data%2 == 1){
-            arr[idx] = 1;
-            }
-            idx++; data/=2;
-        }
-    }
-    reverse(arr,arr+31);
-    return check;
-}
-void printReal(int haming[]){
-    long long sum = 0;
-    int onePar = checkPariti(1,haming);
-    int twoPar = checkPariti(2,haming);
-    int fourPar = checkPariti(4,haming);
-    int eightPar = checkPariti(8,haming);
-    int sixPar = checkPariti(16,haming);
-    if(onePar == 1){haming[30] = 1;}
-    if(twoPar == 1){haming[29] = 1;}
-    if(fourPar == 1){haming[27] = 1;}
-    if(eightPar == 1){haming[23] = 1;}
-    if(sixPar == 1){haming[15] = 1;}
-    
-    for(int i = 0;i<31;i++){
-        if(haming[i] == 1){sum+=pow(2,30-i);}
-        
-    }
-    cout << sum << '\n';  
-}
-
-int checkPariti(int par,int arr[]){
+int checkPariti(int par,int arr[]){   //check pariti bit
     int count = 0;
     if(par == 1){
         for(int i = 30;i>=2;i-=2){       
@@ -75,24 +35,80 @@ int checkPariti(int par,int arr[]){
         return count % 2;
     } 
 }
-void printHaming(int arr[]){
-    int square = 35;
-    long long sum = 0;
-    for(int i = 0;i<36;i++){
-        if(i == 0||i == 1||i == 3||i == 7||i == 15||i == 31){continue;}
+
+int dataToHaming(long long data,int arr[]){ // when k = 0, call this method for revise value 'n' to 31-bit array 
+    int check = 0;
+    int idx = 0;
+    while(data != 0){
+        check++;
+        if(idx == 0 ||idx == 1 ||idx == 3 ||idx == 7 ||idx == 15){
+            idx++;continue;
+        }
         else{
-            if(arr[i] ==1){
-                sum += pow(2,square);
-                square--;
-            }else{square--;}
+            if(data%2 == 1){
+            arr[idx] = 1;
+            }
+            idx++; data/=2;
         }
     }
-    cout << sum << '\n';
+    reverse(arr,arr+31);
+    return check;
+}
+void hamingToData(int arr[],long long data){ // when k = 1, call this method for revise haming code 'n' to array
+    int square = 30; // if n is greater than 2^square, arr[i] = 1 and n -= 2^square
+    for(int i = 0;i<31;i++){
+        if(data == pow(2,square)){
+            arr[i] = 1;
+            break;
+        }else if(data > pow(2,square)){
+            arr[i] = 1;
+            data -= pow(2,square);
+            square--;
+        }else{square--;}
+    }
+    //when finish this loop, we will get 31-bit array
+    // and we should find error in main method line 123~...
+}
+void printReal(int haming[]){ // when k = 0, call this method for print result
+    long long sum = 0;
+    int onePar = checkPariti(1,haming);
+    int twoPar = checkPariti(2,haming);
+    int fourPar = checkPariti(4,haming);
+    int eightPar = checkPariti(8,haming);
+    int sixPar = checkPariti(16,haming);
+    // line 78~82 : revise value of pariti bit
+    if(onePar == 1){haming[30] = 1;}
+    if(twoPar == 1){haming[29] = 1;}
+    if(fourPar == 1){haming[27] = 1;}
+    if(eightPar == 1){haming[23] = 1;}
+    if(sixPar == 1){haming[15] = 1;}
+    for(int i = 0;i<31;i++){
+        if(haming[i] == 1){sum+=pow(2,30-i);}    
+    }
+    cout << sum << '\n';  
+}
+
+
+void printHaming(int arr[]){ // when k = 1, call this method for print result
+    long long sum = 0;
+    int data[26]; // real data array
+    fill_n(data,26,0);
+    int idx = 0;
+    for(int i = 0;i<31;i++){
+        if(i == 30 || i == 29 || i == 27 || i == 23 || i == 15){continue;} // ignore paritibit
+        else{
+            data[idx] = arr[i];
+            idx++;
+        }
+    }
+    //when ending 94~100 loop, data array will be right binary
+    for(int i = 0;i<26;i++){
+        if(data[i] == 1){sum += pow(2,25-i);}
+    }
+    cout << sum;
+    cout << '\n';
 }
 int main(){
-    long long sum = pow(2,2) +pow(2,11) +pow(2,13) +pow(2,14) +
-            pow(2,16) +pow(2,17) +pow(2,19) +pow(2,21) +pow(2,22) +pow(2,24) ;
-    cout << sum;
     int numTest; cin >> numTest;
     while(numTest--){
         long long k,n; cin >> k >> n;
@@ -102,26 +118,29 @@ int main(){
             dataToHaming(n,data);
             printReal(data);
         }else{
-            int data [36];
-            fill_n(data,36,0);
-            int flag = dataToHaming(n,data);
+            int pariti [5]; // repository paiti bit      
+            int error = 0; // check where wrong index
+            int data [31]; // make 31-bit haming
+            fill_n(data,31,0);
+            hamingToData(data,n);
+            // line 123 ~ 127 : save pariti bit of original array
+            pariti[0] = checkPariti(1,data);
+            pariti[1] = checkPariti(2,data);
+            pariti[2] = checkPariti(4,data);
+            pariti[3] = checkPariti(8,data);
+            pariti[4] = checkPariti(16,data);
+            // line 129 ~ 133 : compare between 
+            if(pariti[0] != data[30]){error++;}
+            if(pariti[1] != data[29]){error+=2;}
+            if(pariti[2] != data[27]){error+=4;}
+            if(pariti[3] != data[23]){error+=8;}
+            if(pariti[4] != data[15]){error+=16;}
+            // reverse error index
+            if(error != 0 && data[31-error] == 0){data[31-error]=1;}
+            else if(error != 0 && data[31-error] == 1){data[31-error]=0;}
+            printHaming(data);
             
             
-            /*for(int i = 0;i<36;i++){
-                cout << data[i] << " ";
-            }
-            printHaming(data);*/
         }
     }
-    //dataToHaming(47367638);
 }
-
-//nt main(){
-
-    
-    /*int numTest; cin >> numTest;
-    while(numTest--){
-        int k,n; cin >> k >> n;
-
-    }*/
-//}
