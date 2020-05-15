@@ -20,7 +20,7 @@ int checkPariti(int par,int arr[]){   //check pariti bit
         return count%2;
     }
     else{
-        int reset = 0;
+        int reset = 0; // flag of uncheck, if equal reset and par that will jump index as int par
         for(int i = 30;i > par - 1;i--){
             if(reset != par){
                 if(arr[30-i] == 1){
@@ -36,11 +36,9 @@ int checkPariti(int par,int arr[]){   //check pariti bit
     } 
 }
 
-int dataToHaming(long long data,int arr[]){ // when k = 0, call this method for revise value 'n' to 31-bit array 
-    int check = 0;
+void dataToHaming(long long data,int arr[]){ // when k = 0, call this method for revise value 'n' to 31-bit array 
     int idx = 0;
     while(data != 0){
-        check++;
         if(idx == 0 ||idx == 1 ||idx == 3 ||idx == 7 ||idx == 15){
             idx++;continue;
         }
@@ -51,10 +49,9 @@ int dataToHaming(long long data,int arr[]){ // when k = 0, call this method for 
             idx++; data/=2;
         }
     }
-    reverse(arr,arr+31);
-    return check;
+    reverse(arr,arr+31);  
 }
-void hamingToData(int arr[],long long data){ // when k = 1, call this method for revise haming code 'n' to array
+void hamingToData(long long data,int arr[]){ // when k = 1, call this method for revise haming code 'n' to array
     int square = 30; // if n is greater than 2^square, arr[i] = 1 and n -= 2^square
     for(int i = 0;i<31;i++){
         if(data == pow(2,square)){
@@ -69,39 +66,37 @@ void hamingToData(int arr[],long long data){ // when k = 1, call this method for
     //when finish this loop, we will get 31-bit array
     // and we should find error in main method line 123~...
 }
-void printReal(int haming[]){ // when k = 0, call this method for print result
+void printReal(int arr[]){ // when k = 0, call this method for print result
     long long sum = 0;
-    int onePar = checkPariti(1,haming);
-    int twoPar = checkPariti(2,haming);
-    int fourPar = checkPariti(4,haming);
-    int eightPar = checkPariti(8,haming);
-    int sixPar = checkPariti(16,haming);
-    // line 78~82 : revise value of pariti bit
-    if(onePar == 1){haming[30] = 1;}
-    if(twoPar == 1){haming[29] = 1;}
-    if(fourPar == 1){haming[27] = 1;}
-    if(eightPar == 1){haming[23] = 1;}
-    if(sixPar == 1){haming[15] = 1;}
+    int parritBit [5];
+    for(int i = 0;i<5;i++){
+        parritBit[i] = checkPariti(pow(2,i),arr);
+    }
+    // line 76~80 : revise value of pariti bit
+    if(parritBit[0] == 1){arr[30] = 1;}
+    if(parritBit[1]== 1){arr[29] = 1;}
+    if(parritBit[2] == 1){arr[27] = 1;}
+    if(parritBit[3] == 1){arr[23] = 1;}
+    if(parritBit[4] == 1){arr[15] = 1;}
     for(int i = 0;i<31;i++){
-        if(haming[i] == 1){sum+=pow(2,30-i);}    
+        if(arr[i] == 1){sum+=pow(2,30-i);}    
     }
     cout << sum << '\n';  
 }
 
-
 void printHaming(int arr[]){ // when k = 1, call this method for print result
     long long sum = 0;
-    int data[26]; // real data array
+    int data[26]; // real data array 26-bit
     fill_n(data,26,0);
     int idx = 0;
-    for(int i = 0;i<31;i++){
+    for(int i = 0;i<31;i++){ // copy arr to data while except paritibit
         if(i == 30 || i == 29 || i == 27 || i == 23 || i == 15){continue;} // ignore paritibit
         else{
             data[idx] = arr[i];
             idx++;
         }
     }
-    //when ending 94~100 loop, data array will be right binary
+    //when ending 93~99 loop, data array will be right binary
     for(int i = 0;i<26;i++){
         if(data[i] == 1){sum += pow(2,25-i);}
     }
@@ -122,13 +117,11 @@ int main(){
             int error = 0; // check where wrong index
             int data [31]; // make 31-bit haming
             fill_n(data,31,0);
-            hamingToData(data,n);
+            hamingToData(n,data);
             // line 123 ~ 127 : save pariti bit of original array
-            pariti[0] = checkPariti(1,data);
-            pariti[1] = checkPariti(2,data);
-            pariti[2] = checkPariti(4,data);
-            pariti[3] = checkPariti(8,data);
-            pariti[4] = checkPariti(16,data);
+            for(int i = 0;i<5;i++){
+                pariti[i] = checkPariti(pow(2,i),data);
+            }
             // line 129 ~ 133 : compare between 
             if(pariti[0] != data[30]){error++;}
             if(pariti[1] != data[29]){error+=2;}
@@ -138,9 +131,7 @@ int main(){
             // reverse error index
             if(error != 0 && data[31-error] == 0){data[31-error]=1;}
             else if(error != 0 && data[31-error] == 1){data[31-error]=0;}
-            printHaming(data);
-            
-            
+            printHaming(data);  
         }
     }
 }
